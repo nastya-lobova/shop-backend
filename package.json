@@ -1,0 +1,13 @@
+{
+  "name": "root",
+  "private": true,
+  "workspaces": [
+    "services/*"
+  ],
+  "devDependencies": {},
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:nastya-lobova/shop-backend.git",
+  "author": "<anastasiia_lobova@epam.com>",
+  "license": "MIT"
+}
