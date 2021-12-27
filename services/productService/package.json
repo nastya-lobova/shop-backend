@@ -5,7 +5,8 @@
   "main": "serverless.ts",
   "scripts": {
     "test": "jest",
-    "deploy": "sls deploy"
+    "deploy": "sls deploy",
+    "local": "sls invoke local"
   },
   "engines": {
     "node": ">=14.15.0"
