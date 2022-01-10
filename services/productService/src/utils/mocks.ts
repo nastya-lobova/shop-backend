@@ -1,6 +1,6 @@
-import { Product } from "@utils/intefaces";
+import { IProduct } from "@utils/intefaces";
 
-export const products: Array<Product> = [
+export const products: Array<IProduct> = [
   {
     "count": 4,
     "description": "Short bathroom paper",

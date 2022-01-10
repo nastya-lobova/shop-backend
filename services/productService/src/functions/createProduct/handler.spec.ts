@@ -14,14 +14,20 @@ jest.mock('pg', () => {
 	};
 });
 
-describe('getProductList handler', () => {
+describe('createProductB handler', () => {
 	let client;
 	const query = `
-        SELECT id, title, description, price, count 
-        FROM products 
-        LEFT JOIN stocks 
-        ON products.id=stocks.product_id
+      INSERT INTO products(title, description, price) 
+      VALUES($1, $2, $3) 
+      RETURNING *
     `;
+	const event = {
+		body: {
+			title: '1',
+			description: '1',
+			price: 200
+		}
+	} as any;
 
 	beforeEach(() => {
 		client = new Client();
@@ -33,28 +39,35 @@ describe('getProductList handler', () => {
 
 	it('should success', async () => {
 		client.query.mockResolvedValueOnce({
-			rows: products,
+			rows: {
+				...event.body,
+				id: 1
+			},
 			rowCount: products.length
 		});
 
-		const result = await handler();
+		const result = await handler(event);
 
 		expect(client.connect).toBeCalledTimes(1);
-		expect(client.query).toBeCalledWith(query, []);
+		expect(client.query).toBeCalledWith(query, [ event.body.title, event.body.description, event.body.price ]);
 		expect(client.end).toBeCalledTimes(1);
 		expect(result.statusCode).toEqual(200);
-		expect(result.body).toEqual(JSON.stringify(products));
+		expect(result.body).toEqual(JSON.stringify({
+			...event.body,
+			id: 1
+		}));
 	});
 
-	it('should failure', async () => {
+	it('should failure 500', async () => {
 		const error = new Error('some error');
 		client.query.mockRejectedValueOnce(error);
 
-		const result = await handler();
+		const result = await handler(event);
 
 		expect(client.connect).toBeCalledTimes(1);
-		expect(client.query).toBeCalledWith(query, []);
+		expect(client.query).toBeCalledWith(query, [ event.body.title, event.body.description, event.body.price ]);
 		expect(client.end).toBeCalledTimes(1);
+		expect(result.statusCode).toEqual(500);
 		expect(result.body).toEqual(JSON.stringify({
 			message: error.message
 		}));

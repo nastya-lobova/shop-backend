@@ -1,11 +1,14 @@
 import type { AWS } from '@serverless/typescript';
 
-import { getProductsById, getProductsList } from '@functions/index';
+import { getProductsById, getProductsList, createProduct } from '@functions/index';
 
 const serverlessConfiguration: AWS = {
   service: 'product-service',
   frameworkVersion: '2',
-  plugins: ['serverless-esbuild', 'serverless-aws-documentation'],
+  plugins: [
+    'serverless-esbuild',
+    'serverless-dotenv-plugin'
+  ],
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
@@ -14,17 +17,16 @@ const serverlessConfiguration: AWS = {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
     },
-    environment: {
-      AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-      NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
-    },
     lambdaHashingVersion: '20201221',
   },
   functions: {
     getProductsById,
-    getProductsList
+    getProductsList,
+    createProduct
   },
-  package: { individually: true },
+  package: {
+    individually: true
+  },
   custom: {
     esbuild: {
       bundle: true,

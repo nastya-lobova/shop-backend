@@ -1,19 +1,34 @@
 import { formatJSONResponse, EventRequest } from '@libs/apiGateway';
-import { products } from '@utils/mocks';
 import { APIGatewayProxyResult } from 'aws-lambda';
+import { pgRunQuery } from '@libs/pg';
+import { IProduct } from "@utils/intefaces";
 
 interface ProductParameters {
   productId: string
 }
 
 export async function handler({ pathParameters: { productId } }: EventRequest<ProductParameters>): Promise<APIGatewayProxyResult> {
-  const product = products.find(({id}) => id === productId);
+  try {
+    const query = `
+        SELECT id, title, description, price, count 
+        FROM products 
+        LEFT JOIN stocks 
+        ON products.id=stocks.product_id
+        WHERE products.id=$1
+    `;
 
-  if (product) {
-    return formatJSONResponse(product);
-  } else {
+    const [ product ] = await pgRunQuery<Array<IProduct>, string>(query, [ productId ]);
+
+    if (product) {
+      return formatJSONResponse(product);
+    } else {
+      return formatJSONResponse({
+        message: `Could not find product with productId=${productId}`
+      }, 404);
+    }
+  } catch (error) {
     return formatJSONResponse({
-      message: `Could not find product with productId=${productId}`
-    }, 404);
+      message: error.message
+    }, 500);
   }
 }
