@@ -1,36 +1,50 @@
 import AWS from 'aws-sdk';
 import csv from 'csv-parser';
 import { formatJSONResponse } from "@libs/apiGateway";
+import stream from 'stream';
+import util from 'util';
 
-const { BUCKET } = process.env;
+const pipeline = util.promisify(stream.pipeline);
+
+const { BUCKET, SQS_URL } = process.env;
+
+class SQSStream extends stream.Writable {
+  _sqs: AWS.SQS
+
+  constructor(opt, sqs) {
+    super(opt);
+
+    this._sqs = sqs;
+  }
+
+  _write(chunk, _encoding, callback) {
+    this._sqs.sendMessage({
+      QueueUrl: SQS_URL,
+      MessageBody: JSON.stringify(chunk)
+    }, callback);
+  }
+}
 
 export async function handler(event) {
-  const s3 = new AWS.S3({
-    region: 'eu-west-1'
-  });
+  const s3 = new AWS.S3();
+  const sqs = new AWS.SQS();
 
   for (const record of event.Records) {
     const { object } = record.s3;
+
     const params = {
       Bucket: BUCKET,
       Key: object.key
     };
 
-    await new Promise<void>((resolve, reject) => {
-      const s3Stream = s3.getObject(params).createReadStream();
+    const s3Stream = s3.getObject(params).createReadStream();
+    const my = new SQSStream({ objectMode: true }, sqs);
 
-      s3Stream
-        .pipe(csv())
-        .on('data', (data) => {
-          console.log(data, 'record');
-        })
-        .on('error', (error) => {
-          reject(error);
-        })
-        .on('end', () => {
-          resolve();
-        })
-    });
+    await pipeline(
+      s3Stream,
+      csv(),
+      my
+    );
 
     await s3.copyObject({
       Bucket: BUCKET,
