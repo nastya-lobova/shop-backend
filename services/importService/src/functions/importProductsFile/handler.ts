@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk';
 import { formatJSONResponse } from '@libs/apiGateway';
-import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 export type EventRequest = Omit<APIGatewayProxyEvent, 'pathParameters'> & {
   queryStringParameters: {
