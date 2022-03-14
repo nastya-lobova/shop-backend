@@ -1,5 +1,5 @@
-export default {
-  type: "object",
+export const createProductSchema = {
+  type: 'object',
   properties: {
     title: {
       type: 'string'
@@ -12,4 +12,4 @@ export default {
     }
   },
   required: ['title', 'price', 'description']
-} as const;
+};

@@ -1,13 +1,12 @@
-import pg from 'pg'
-
-const { PG_HOST, PG_PORT, PG_DATABASE, PG_USERNAME, PG_PASSWORD } = process.env;
+import pg from 'pg';
+import config from '@config/index';
 
 const dbOptions = {
-  host: PG_HOST,
-  port: PG_PORT,
-  database: PG_DATABASE,
-  user: PG_USERNAME,
-  password: PG_PASSWORD,
+  host: config.PG_HOST,
+  port: config.PG_PORT,
+  database: config.PG_DATABASE,
+  user: config.PG_USERNAME,
+  password: config.PG_PASSWORD,
   ssl: {
     rejectUnauthorized: false,
   },

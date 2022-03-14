@@ -22,7 +22,7 @@ Depending on your preferred package manager, follow the instructions below to de
 
 ## Test your service
 
-This template contains a single lambda function triggered by an HTTP request made on the provisioned API Gateway REST API `/hello` route with `POST` method. The request body must be provided as `application/json`. The body structure is tested by API Gateway against `src/functions/hello/schema.ts` JSON-Schema definition: it must contain the `name` property.
+This template contains a single lambda function triggered by an HTTP request made on the provisioned API Gateway REST API `/hello` route with `POST` method. The request body must be provided as `application/json`. The body structure is tested by API Gateway against `src/functions/hello/schemas.ts` JSON-Schema definition: it must contain the `name` property.
 
 - requesting any other path than `/hello` with any other method than `POST` will result in API Gateway returning a `403` HTTP error code
 - sending a `POST` request to `/hello` with a payload **not** containing a string property named `name` will result in API Gateway returning a `400` HTTP error code
@@ -68,7 +68,7 @@ The project code base is mainly located within the `src` folder. This folder is 
 │   │   │   ├── handler.ts      # `Hello` lambda source code
 │   │   │   ├── index.ts        # `Hello` lambda Serverless configuration
 │   │   │   ├── mock.json       # `Hello` lambda input parameter, if any, for local invocation
-│   │   │   └── schema.ts       # `Hello` lambda input event JSON-Schema
+│   │   │   └── schemas.ts       # `Hello` lambda input event JSON-Schema
 │   │   │
 │   │   └── index.ts            # Import/export of all lambda configurations
 │   │

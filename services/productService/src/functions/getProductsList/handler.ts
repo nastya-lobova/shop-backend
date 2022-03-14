@@ -1,22 +1,10 @@
-import { formatJSONResponse } from "@libs/apiGateway";
 import type { APIGatewayProxyResult } from 'aws-lambda';
-import { IProduct } from "@utils/intefaces";
-import { pgRunQuery } from '@libs/pg';
+import ProductController from '@controllers/product/product.controller';
+import ProductService from '@services/product/product.service';
 
 export async function handler(): Promise<APIGatewayProxyResult> {
-  try {
-    const query = `
-        SELECT id, title, description, price, count 
-        FROM products 
-        LEFT JOIN stocks 
-        ON products.id=stocks.product_id
-    `;
-    const products = await pgRunQuery<Array<IProduct>>(query);
+  const productService = new ProductService();
+  const productController = new ProductController(productService);
 
-    return formatJSONResponse(products);
-  } catch (error) {
-    return formatJSONResponse({
-      message: error.message
-    }, 500);
-  }
+  return await productController.getProducts();
 }

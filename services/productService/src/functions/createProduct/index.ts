@@ -1,4 +1,4 @@
-import schema from './schema';
+import { createProductSchema } from '@utils/schemas';
 import { handlerPath } from '@libs/handlerResolver';
 
 export default {
@@ -11,7 +11,7 @@ export default {
         cors: true,
         request: {
           schemas: {
-            'application/json': schema
+            'application/json': createProductSchema
           }
         }
       }
