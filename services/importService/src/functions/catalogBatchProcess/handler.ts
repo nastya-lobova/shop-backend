@@ -1,41 +1,9 @@
-import AWS from 'aws-sdk';
-import { pgRunQuery } from "@libs/pg";
-import { IProduct } from "@utils/intefaces";
-import { formatJSONResponse } from "@libs/apiGateway";
-
-const { SNS_ARN } = process.env;
+import ProductController from '@controllers/product/product.controller';
+import ProductService from '@services/product/product.service';
 
 export async function handler(event) {
-  const sns = new AWS.SNS();
+  const productService = new ProductService();
+  const productController = new ProductController(productService);
 
-  try {
-    for (const record of event.Records) {
-      const { title, description, price } = JSON.parse(record.body);
-
-      const query = `
-      INSERT INTO products(title, description, price)
-      VALUES($1, $2, $3)
-      RETURNING *
-    `;
-      const values = [ title, description, price ];
-
-      await pgRunQuery<Array<IProduct>, string | number>(query, values);
-    }
-
-    await sns.publish({
-      Subject: 'Загрузка данных прошла успешно',
-      Message: JSON.stringify(event.Records.map((record) => record.body)),
-      TopicArn: SNS_ARN
-    }, (error) => {
-      if (error) {
-        throw error;
-      }
-    }).promise();
-
-    return formatJSONResponse('');
-  } catch (error) {
-    return formatJSONResponse({
-      message: error.message
-    }, 500);
-  }
+  return productController.loadProducts(event);
 }

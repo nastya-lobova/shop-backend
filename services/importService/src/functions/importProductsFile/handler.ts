@@ -1,34 +1,10 @@
-import AWS from 'aws-sdk';
-import { formatJSONResponse } from '@libs/apiGateway';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyResult } from 'aws-lambda';
+import ProductService from '@services/product/product.service';
+import ProductController, { EventRequest } from '@controllers/product/product.controller';
 
-export type EventRequest = Omit<APIGatewayProxyEvent, 'pathParameters'> & {
-  queryStringParameters: {
-    name: string
-  }
-};
+export async function handler(event: EventRequest): Promise<APIGatewayProxyResult> {
+  const productService = new ProductService();
+  const productController = new ProductController(productService);
 
-const { BUCKET } = process.env;
-
-export async function handler({ queryStringParameters: { name }}: EventRequest): Promise<APIGatewayProxyResult> {
-  try {
-    const s3 = new AWS.S3({
-      region: 'eu-west-1'
-    });
-
-    const params = {
-      Bucket: BUCKET,
-      Key: `uploaded/${name}`,
-      Expires: 60,
-      ContentType: 'text/csv'
-    }
-
-    const url = await s3.getSignedUrlPromise('putObject', params);
-
-    return formatJSONResponse(url);
-  } catch (error) {
-    return formatJSONResponse({
-      message: error.message
-    }, 500);
-  }
+  return productController.getUploadLink(event);
 }

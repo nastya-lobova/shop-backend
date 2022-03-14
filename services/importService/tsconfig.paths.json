@@ -5,6 +5,9 @@
       "@functions/*": ["src/functions/*"],
       "@libs/*": ["src/libs/*"],
       "@utils/*": ["src/utils/*"],
+      "@services/*": ["src/services/*"],
+      "@controllers/*": ["src/controllers/*"],
+      "@config/*": ["src/config/*"]
     }
   }
 }
